@@ -2,6 +2,7 @@
 #include <fstream>
 #include <stdexcept>
 #include <sstream>
+#
 
 using namespace std;
 
@@ -11,12 +12,14 @@ private:
     int id;
     string nombre;
     int edad;
+    string departamento;
 public:
     Paciente() {}
-    Paciente(string nombre, int edad, int id) {
+    Paciente(string nombre, int edad, int id, string departamento) {
         this->nombre = nombre;
         this->edad = edad;
         this->id = id;
+        this->departamento=departamento;
     }
     string getNombre() {
         return this->nombre;
@@ -25,10 +28,16 @@ public:
         return this->edad;
     }
     string toString() {
-        return this->nombre + " (" + to_string(this->edad) + ")\n";
+        return this->nombre + " (" + to_string(edad) + ")\n";
     }
     ~Paciente() {
-        cout << "Ya fue atendido " << this->nombre << endl;
+        cout << "Ya fue atendido " << nombre << endl;
+    }
+    int getId(){
+        return id;
+    }
+    string getDepartamento(){
+        return departamento;
     }
 };
 
@@ -124,8 +133,11 @@ public:
         this->nombre = nombre;
         this->suLista = new Lista<Paciente*>();
     }
+    void agregarPaciente(Paciente* paciente){
+        suLista->añadir(paciente);
+    }
     string getNombre() {
-        return this->nombre;
+        return nombre;
     }
     string toString() {
         return this->nombre + "\n";
@@ -262,7 +274,7 @@ void leerArch(Lista<Paciente*>& pacientesDispo){
             getline(ss, partesEdad, ';');
             getline(ss, partesDepartamento, ';');
             
-            pacientesDispo.añadir(new Paciente(partesNombre, stoi(partesEdad), stoi(partesId)));
+            pacientesDispo.añadir(new Paciente(partesNombre, stoi(partesEdad), stoi(partesId), partesDepartamento));
         }
         archivo.close();
         
@@ -284,13 +296,64 @@ int abrirMenu() {
         2. Ver departamento
         3. Revisar historial de atencion
         4. Salir )" << endl;
-        cout << ">";
+        cout << "Opcion >";
         cin >> opcion;
         cout << "\n" << endl;
     
         switch (opcion) {
-            case 1:
-                break;
+            case 1:{
+                cout<<"==Pacientes en espera=="<<endl;
+                if (pacientesDispo.getSize() == 0) {
+                    cout << "No hay pacientes en espera." << endl << endl;
+                    break;
+                }
+                for (int i = 0; i < pacientesDispo.getSize(); i++) {
+                    Paciente* p = pacientesDispo.getIndice(i);
+                    cout << (i + 1) << ". ";
+                    if (p->getId() < 10) cout << "00";
+                    else if (p->getId() < 100) cout << "0";
+                    cout << p->getId() << "- " << p->getNombre() << endl;
+                }
+                
+                cout << "Indique la cantidad de pacientes a atender: ";
+                string cantStr;
+                cin >> cantStr;
+                int cantidad;
+                try {
+                    cantidad = stoi(cantStr);
+                } catch (...) {
+                    cout << "Cantidad invalida." << endl << endl;
+                    break;
+                }
+                
+                if (cantidad > pacientesDispo.getSize()) {
+                    cantidad = pacientesDispo.getSize();
+                }
+                cout << "=== ATENDIENDO PACIENTES ===" << endl;
+                for (int i = 0; i < cantidad; i++) {
+                    Paciente* p = pacientesDispo.extraerPrimero();
+                    if (p != nullptr) {
+                        cout << "ID: "<< p->getId() << endl;
+                        cout << "Nombre: " << p->getNombre() << endl;
+                        cout << "Edad: " << p->getEdad() << endl;
+                        cout << "Servicio: " << p->getDepartamento() << endl;
+                        bool derivado = false;
+                        for (int j = 0; j < hospital.getSize(); j++) {
+                            Departamento* dep = hospital.getIndice(j);
+                            if (p->getDepartamento().find(dep->getNombre()) != string::npos) {
+                                dep->agregarPaciente(p);
+                                cout << "Paciente enviado a " << p->getDepartamento() << endl<<endl;
+                                derivado = true;
+                                break;
+                            }
+                        }
+                        if (!derivado) {
+                            cout << "Departamento no encontrado. Paciente descartado." << endl << endl;
+                            delete p;
+                        }
+                    }
+                }
+                break;}
             case 2: {
                 cout<<"-- depas/sevicios--"<<endl;
                 string op;
