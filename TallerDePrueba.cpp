@@ -104,6 +104,15 @@ public:
         }
         return salida;
     }
+    T extraerPrimero() {
+        if (this->head == nullptr) return nullptr;
+        Nodo<T>* nodoEliminar = this->head;
+        this->head = this->head->getSiguiente();
+        T dato = nodoEliminar->getDato();
+        delete nodoEliminar;
+        this->largo--;
+        return dato;
+    }
 };
 
 class Departamento {
