@@ -2,7 +2,7 @@
 #include <fstream>
 #include <stdexcept>
 #include <sstream>
-#
+
 
 using namespace std;
 
@@ -225,7 +225,32 @@ public:
         cout << this->suLista->toString();
     }
 };
-
+template <typename T>
+class Pila {
+private:
+    Nodo<T>* tope;
+public:
+    Pila() {
+        this->tope = nullptr;
+    }
+    void añadir(T dato) {
+        Nodo<T>* nuevo = new Nodo<T>(dato);
+        nuevo->setSiguiente(this->tope);
+        this->tope = nuevo;
+    }
+    void mostrar() {
+        if (this->tope == nullptr) {
+            cout << "El historial esta vacio." << endl;
+            return;
+        }
+        Nodo<T>* aux = this->tope;
+        while (aux != nullptr) {
+            cout << aux->getDato() << endl;
+            cout << "--" << endl;
+            aux = aux->getSiguiente();
+        }
+    }
+};
 
 
 void ingresasDepartamentos(Lista<Departamento*>& hospital){
@@ -287,6 +312,7 @@ int abrirMenu() {
     Lista<Departamento*> hospital;
     Lista<Paciente*> pacientesDispo;
     ingresasDepartamentos(hospital);
+    Pila<string> historial;
   
     leerArch(pacientesDispo);
     int opcion;
@@ -315,12 +341,16 @@ int abrirMenu() {
                     cout << p->getId() << "- " << p->getNombre() << endl;
                 }
                 
-                cout << "Indique la cantidad de pacientes a atender: ";
+                cout << "Indique la cantidad de pacientes a atender (ingrese -1 para volver al menú): ";
                 string cantStr;
                 cin >> cantStr;
                 int cantidad;
                 try {
                     cantidad = stoi(cantStr);
+                    if(cantidad==-1){
+                        cout<<"Volviendo al menú"<< endl;
+                        break;
+                    }
                 } catch (...) {
                     cout << "Cantidad invalida." << endl << endl;
                     break;
@@ -328,6 +358,7 @@ int abrirMenu() {
                 
                 if (cantidad > pacientesDispo.getSize()) {
                     cantidad = pacientesDispo.getSize();
+                    cout<<"Se atenderán a todos los pacientes"<<endl<<endl;
                 }
                 cout << "=== ATENDIENDO PACIENTES ===" << endl;
                 for (int i = 0; i < cantidad; i++) {
@@ -342,6 +373,8 @@ int abrirMenu() {
                             Departamento* dep = hospital.getIndice(j);
                             if (p->getDepartamento().find(dep->getNombre()) != string::npos) {
                                 dep->agregarPaciente(p);
+                                string registro = "Nombre: " + p->getNombre() + "- Edad: " + to_string(p->getEdad()) + "- Departamento: " + dep->getNombre();
+                                historial.añadir(registro);
                                 cout << "Paciente enviado a " << p->getDepartamento() << endl<<endl;
                                 derivado = true;
                                 break;
@@ -366,6 +399,9 @@ int abrirMenu() {
                 verEstado(op,hospital);
                 break;}
             case 3: 
+                cout << "=== HISTORIAL DE ULTIMAS ATENCIONES DEL HOSPITAL ===" << endl;
+                historial.mostrar();
+                cout << endl;
                 break;
             case 4: 
                 break;
@@ -373,7 +409,7 @@ int abrirMenu() {
                 cout << "Error!! intente nuevamente" << endl;
         }
     } while (opcion != 4);
-    
+    cout<<"Chao"<<endl;
     return 0;
 }
 
