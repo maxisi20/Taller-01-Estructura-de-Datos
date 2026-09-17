@@ -1,0 +1,313 @@
+#include <iostream>
+#include <fstream>
+#include <stdexcept>
+#include <sstream>
+
+using namespace std;
+
+
+class Paciente {
+private:
+    int id;
+    string nombre;
+    int edad;
+public:
+    Paciente() {}
+    Paciente(string nombre, int edad, int id) {
+        this->nombre = nombre;
+        this->edad = edad;
+        this->id = id;
+    }
+    string getNombre() {
+        return this->nombre;
+    }
+    int getEdad() {
+        return this->edad;
+    }
+    string toString() {
+        return this->nombre + " (" + to_string(this->edad) + ")\n";
+    }
+    ~Paciente() {
+        cout << "Ya fue atendido " << this->nombre << endl;
+    }
+};
+
+
+template <typename T>
+class Nodo {
+private:
+    T dato;
+    Nodo<T>* siguiente;
+public:
+    Nodo(T dato) {
+        this->dato = dato;
+        this->siguiente = nullptr;
+    }
+    T getDato() { return dato; }
+    Nodo<T>* getSiguiente() { return siguiente; }
+    void setSiguiente(Nodo<T>* nuevo) { this->siguiente = nuevo; }
+};
+template <typename T>
+class Lista {
+private:
+    Nodo<T>* head;
+    int largo;
+public:
+    Lista() {
+        this->head = nullptr;
+        this->largo = 0;
+    }
+    
+    Nodo<T>* getUltimo() {
+        Nodo<T>* aux = this->head;
+        if (aux == nullptr) return nullptr;
+        while (aux->getSiguiente() != nullptr) {
+            aux = aux->getSiguiente();
+        }
+        return aux;
+    }
+    
+    void añadir(T dato) {
+        Nodo<T>* nuevo = new Nodo<T>(dato);
+        if (this->head == nullptr) {
+            this->head = nuevo;
+        } else {
+            Nodo<T>* ultimo = getUltimo();
+            ultimo->setSiguiente(nuevo);
+        }
+        this->largo++;
+    }
+    
+    int getSize() {
+        return this->largo;
+    }
+    
+    T getIndice(int indice) {
+        Nodo<T>* aux = head;
+        int cont = 0;
+        while (aux != nullptr) {
+            if (indice == cont) {
+                return aux->getDato();
+            }
+            aux = aux->getSiguiente();
+            cont++;
+        }
+        return nullptr; 
+    }
+    
+    string toString() {
+        string salida = "";
+        Nodo<T>* aux = head;
+        while (aux != nullptr) {
+            salida += aux->getDato()->toString();
+            aux = aux->getSiguiente();
+        }
+        return salida;
+    }
+};
+
+class Departamento {
+protected:
+    Lista<Paciente*>* suLista; 
+    string nombre;
+public:
+    Departamento(string nombre) {
+        this->nombre = nombre;
+        this->suLista = new Lista<Paciente*>();
+    }
+    string getNombre() {
+        return this->nombre;
+    }
+    string toString() {
+        return this->nombre + "\n";
+    }
+    virtual void mostrarEstado() = 0;
+};
+
+class Urgencias : public Departamento {
+public:
+    Urgencias() : Departamento("Urgencias") {}
+    
+    void mostrarEstado() {
+        cout << "--- Estado Urgencias ---"<<endl;
+        cout << "Pacientes en urgencias: " << this->suLista->getSize() << endl;
+        cout << this->suLista->toString();
+    }
+};
+class MedicinaGen : public Departamento {
+public:
+    MedicinaGen() : Departamento("Medicina General") {}
+    
+    void mostrarEstado() {
+        cout << "--- Estado Medicina General ---"<<endl;
+        cout << "Pacientes en Medicina General: " << this->suLista->getSize() << endl;
+        cout << this->suLista->toString();
+    }
+};
+class Cardiologia : public Departamento {
+public:
+    Cardiologia() : Departamento("Cardiologia") {}
+    
+    void mostrarEstado() {
+        cout << "--- Estado Cardiologia ---"<<endl;
+        cout << "Pacientes en Cardiologia: " << this->suLista->getSize() << endl;
+        cout << this->suLista->toString();
+    }
+};
+class Neurología : public Departamento {
+public:
+    Neurología() : Departamento("Neurología") {}
+    
+    void mostrarEstado() {
+        cout << "--- Estado Neurología ---"<<endl;
+        cout << "Pacientes en Neurología: " << this->suLista->getSize() << endl;
+        cout << this->suLista->toString();
+    }
+};
+class Traumatologia : public Departamento {
+public:
+    Traumatologia() : Departamento("Traumatologia") {}
+    
+    void mostrarEstado() {
+        cout << "--- Estado Traumatologia ---"<<endl;
+        cout << "Pacientes en Traumatologia: " << this->suLista->getSize() << endl;
+        cout << this->suLista->toString();
+    }
+};
+class Cirugia : public Departamento {
+public:
+    Cirugia() : Departamento("Cirugia") {}
+    
+    void mostrarEstado() {
+        cout << "--- Estado Cirugia ---"<<endl;
+        cout<< "Pacientes en Cirugia: " << this->suLista->getSize() << endl;
+        cout << this->suLista->toString();
+    }
+};
+class Pediatria : public Departamento {
+public:
+    Pediatria() : Departamento("Pediatria") {}
+    
+    void mostrarEstado() {
+        cout << "--- Estado Pediatria ---"<<endl;
+        cout << "Pacientes en Pediatria: " << this->suLista->getSize() << endl;
+        cout << this->suLista->toString();
+    }
+};
+class Hospitalizacion : public Departamento {
+public:
+    Hospitalizacion() : Departamento("Hospitalizacion") {}
+    
+    void mostrarEstado() {
+        cout << "--- Estado Hospitalizacion ---"<<endl;
+        cout << "Pacientes en Hospitalizacion: " << this->suLista->getSize() << endl;
+        cout << this->suLista->toString();
+    }
+};
+
+
+
+void ingresasDepartamentos(Lista<Departamento*>& hospital){
+    hospital.añadir(new Urgencias());
+    hospital.añadir(new MedicinaGen());
+    hospital.añadir(new Cardiologia());
+    hospital.añadir(new Neurología());
+    hospital.añadir(new Traumatologia());
+    hospital.añadir(new Cirugia());
+    hospital.añadir(new Pediatria());
+    hospital.añadir(new Hospitalizacion());
+    
+}
+void verEstado(string op, Lista<Departamento*>& hospital){
+    try{
+        int opcion = stoi(op) - 1;
+        Departamento* servicio= hospital.getIndice(opcion);
+        if(servicio==nullptr){
+            cout<<"No se ha encontrado el servicio"<<endl;
+            return;
+        }
+        servicio->mostrarEstado();
+        
+        
+    }catch(const invalid_argument& e){
+        cout<<"Error!! devolviendo al menú..."<<endl;
+    }
+}
+
+void leerArch(Lista<Paciente*>& pacientesDispo){
+    
+    try{
+        
+        ifstream archivo("archivo.txt");
+        string linea;
+
+        string partesNombre,partesEdad, partesId, partesDepartamento;
+      
+        
+        while(getline(archivo, linea)){
+            
+            stringstream ss(linea);
+
+            getline(ss, partesId, ';');
+            getline(ss, partesNombre, ';');
+            getline(ss, partesEdad, ';');
+            getline(ss, partesDepartamento, ';');
+            
+            pacientesDispo.añadir(new Paciente(partesNombre, stoi(partesEdad), stoi(partesId)));
+        }
+        archivo.close();
+        
+    }catch(const exception& e){
+        cout<< "error error"<<endl;
+    }
+}
+
+int abrirMenu() {
+    Lista<Departamento*> hospital;
+    Lista<Paciente*> pacientesDispo;
+    ingresasDepartamentos(hospital);
+  
+    leerArch(pacientesDispo);
+    int opcion;
+    do {
+        cout << R"(=== Hospital marmaja ===
+        1. Atender pacientes
+        2. Ver departamento
+        3. Revisar historial de atencion
+        4. Salir )" << endl;
+        cout << ">";
+        cin >> opcion;
+        cout << "\n" << endl;
+    
+        switch (opcion) {
+            case 1:
+                break;
+            case 2: {
+                cout<<"-- depas/sevicios--"<<endl;
+                string op;
+                for(int i = 0; i < hospital.getSize(); i++){
+                    cout << (i+1) << ". " << hospital.getIndice(i)->getNombre() << endl;
+                }
+                cout<<"Seleccionar opcion: ";
+                cin>> op;
+                cout<<op<<endl;
+                verEstado(op,hospital);
+                break;}
+            case 3: 
+                break;
+            case 4: 
+                break;
+            default:
+                cout << "Error!! intente nuevamente" << endl;
+        }
+    } while (opcion != 4);
+    
+    return 0;
+}
+
+
+int main() {
+   
+    abrirMenu();
+    return 0;
+}
