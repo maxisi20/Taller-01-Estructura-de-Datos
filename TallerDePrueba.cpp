@@ -2,44 +2,12 @@
 #include <fstream>
 #include <stdexcept>
 #include <sstream>
-
+#include "Paciente.cpp"
 
 using namespace std;
 
 
-class Paciente {
-private:
-    int id;
-    string nombre;
-    int edad;
-    string departamento;
-public:
-    Paciente() {}
-    Paciente(string nombre, int edad, int id, string departamento) {
-        this->nombre = nombre;
-        this->edad = edad;
-        this->id = id;
-        this->departamento=departamento;
-    }
-    string getNombre() {
-        return this->nombre;
-    }
-    int getEdad() {
-        return this->edad;
-    }
-    string toString() {
-        return this->nombre + " (" + to_string(edad) + ")\n";
-    }
-    ~Paciente() {
-        cout << "Ya fue atendido " << nombre << endl;
-    }
-    int getId(){
-        return id;
-    }
-    string getDepartamento(){
-        return departamento;
-    }
-};
+
 
 template <typename T>
 class Nodo {
