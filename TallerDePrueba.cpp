@@ -41,7 +41,6 @@ public:
     }
 };
 
-
 template <typename T>
 class Nodo {
 private:
@@ -252,7 +251,6 @@ public:
     }
 };
 
-
 void ingresasDepartamentos(Lista<Departamento*>& hospital){
     hospital.añadir(new Urgencias());
     hospital.añadir(new MedicinaGen());
@@ -279,32 +277,49 @@ void verEstado(string op, Lista<Departamento*>& hospital){
         cout<<"Error!! devolviendo al menú..."<<endl;
     }
 }
+void parsearLinea(const string& linea, int& id, string& nombre, int& edad, string& depa) {
+    const char* ptr = linea.c_str();
+    string acumulador = "";
+    int campo = 0;
 
-void leerArch(Lista<Paciente*>& pacientesDispo){
-    
-    try{
+    while (*ptr != '\0') {
+        if (*ptr == ';') { 
+            if (campo == 0) id = stoi(acumulador);
+            else if (campo == 1) nombre = acumulador;
+            else if (campo == 2) edad = stoi(acumulador);
+            
+            acumulador = ""; 
+            campo++;
+        } else if (*ptr != '\r' && *ptr != '\n') {
+            acumulador += *ptr;
+        }
         
+        ptr++; 
+    }
+
+    if (campo == 3) {
+        depa = acumulador;
+    }
+}
+void leerArch(Lista<Paciente*>& pacientesDispo) {
+    try {
         ifstream archivo("archivo.txt");
         string linea;
-
-        string partesNombre,partesEdad, partesId, partesDepartamento;
-      
         
-        while(getline(archivo, linea)){
-            
-            stringstream ss(linea);
+        while (getline(archivo, linea)) {
+            if (linea.empty()) continue;
 
-            getline(ss, partesId, ';');
-            getline(ss, partesNombre, ';');
-            getline(ss, partesEdad, ';');
-            getline(ss, partesDepartamento, ';');
+            int id = 0, edad = 0;
+            string nombre = "", departamento = "";
+    
+            parsearLinea(linea, id, nombre, edad, departamento);
             
-            pacientesDispo.añadir(new Paciente(partesNombre, stoi(partesEdad), stoi(partesId), partesDepartamento));
+            pacientesDispo.añadir(new Paciente(nombre, edad, id, departamento));
         }
         archivo.close();
         
-    }catch(const exception& e){
-        cout<< "error error"<<endl;
+    } catch (const exception& e) {
+        cout << "Error al leer el archivo." << endl;
     }
 }
 
