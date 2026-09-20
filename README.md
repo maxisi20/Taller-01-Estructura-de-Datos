@@ -11,10 +11,10 @@ Este proyecto corresponde al primer taller de la asignatura Estructuras de Datos
 * maxisi20
 * ITI
 
-* **Nombre:** [Nombre integrante 2]
-  * **RUT:** [RUT]
-  * **GitHub:** [Usuario de GitHub]
-  * **Carrera:** [Carrera]
+* José Urtubia
+  * 22.017.611-8
+  * Jose-Urtubia
+  * ICCI
 
 ---
 
