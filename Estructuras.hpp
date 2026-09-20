@@ -30,7 +30,15 @@ public:
         this->head = nullptr;
         this->largo = 0;
     }
-    
+   ~Lista() {
+        Nodo<T>* actual = this->head;
+        while (actual != nullptr) {
+            Nodo<T>* siguiente = actual->getSiguiente();
+            delete actual;
+            actual = siguiente;
+        }
+    }
+
     Nodo<T>* getUltimo() {
         Nodo<T>* aux = this->head;
         if (aux == nullptr) return nullptr;

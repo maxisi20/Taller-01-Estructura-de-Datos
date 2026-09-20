@@ -9,14 +9,19 @@
 using namespace std;
 
 class Departamento {
+
 protected:
-    Lista<Paciente*>* suLista; 
+    Lista<Paciente*>* suLista;
     string nombre;
+
 public:
     Departamento(string nombre);
+    virtual ~Departamento();   
+
     void agregarPaciente(Paciente* paciente);
     string getNombre();
     string toString();
+
     virtual void mostrarEstado() = 0;
 };
 

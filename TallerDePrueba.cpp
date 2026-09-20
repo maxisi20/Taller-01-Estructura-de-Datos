@@ -15,6 +15,14 @@ public:
     Pila() {
         this->tope = nullptr;
     }
+    ~Pila() {
+        Nodo<T>* actual = this->tope;
+        while (actual != nullptr) {
+            Nodo<T>* siguiente = actual->getSiguiente();
+            delete actual;
+            actual = siguiente;
+        }
+    }
     void añadir(T dato) {
         Nodo<T>* nuevo = new Nodo<T>(dato);
         nuevo->setSiguiente(this->tope);

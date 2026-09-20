@@ -4,7 +4,9 @@ Departamento::Departamento(string nombre) {
     this->nombre = nombre;
     this->suLista = new Lista<Paciente*>();
 }
-
+Departamento::~Departamento() {
+    delete this->suLista;
+}
 void Departamento::agregarPaciente(Paciente* paciente) {
     suLista->añadir(paciente);
 }
