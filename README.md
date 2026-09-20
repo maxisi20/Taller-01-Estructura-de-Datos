@@ -7,9 +7,9 @@ Este proyecto corresponde al primer taller de la asignatura Estructuras de Datos
 ## Integrantes
 
 *  Maximiliano Yañez
-* 21.668.966-6
-* maxisi20
-* ITI
+  * 21.668.966-6
+  * maxisi20
+  * ITI
 
 * José Urtubia
   * 22.017.611-8
