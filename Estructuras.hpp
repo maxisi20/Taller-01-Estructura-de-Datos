@@ -163,4 +163,28 @@ public:
     }
 };
 
+template <typename T>
+class NodoArbol {
+public:
+    T dato;
+    NodoArbol<T>* izq;
+    NodoArbol<T>* der;
+    int altura;
+
+    NodoArbol(T dato) {
+        this->dato = dato;
+        this->izq = nullptr;
+        this->der = nullptr;
+        this->altura = 1;
+    }
+};
+template <typename T>
+class ArbolAVL {
+private:
+    NodoArbol<T>* raiz;
+
+public:
+    ArbolAVL() { this->raiz = nullptr;}
+};
+
 #endif
