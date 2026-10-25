@@ -20,6 +20,7 @@ public:
     Nodo<T>* getSiguiente() { return siguiente; }
     void setSiguiente(Nodo<T>* nuevo) { this->siguiente = nuevo; }
 };
+
 template <typename T>
 class Lista {
 private:
@@ -30,7 +31,7 @@ public:
         this->head = nullptr;
         this->largo = 0;
     }
-   ~Lista() {
+    ~Lista() {
         Nodo<T>* actual = this->head;
         while (actual != nullptr) {
             Nodo<T>* siguiente = actual->getSiguiente();
@@ -85,6 +86,7 @@ public:
         }
         return salida;
     }
+    
     T extraerPrimero() {
         if (this->head == nullptr) return nullptr;
         Nodo<T>* nodoEliminar = this->head;
@@ -95,4 +97,70 @@ public:
         return dato;
     }
 };
+
+template <typename T>
+class Cola {
+private:
+    Nodo<T>* frente;
+    Nodo<T>* fin;
+    int largo;
+
+public:
+    Cola() {
+        this->frente = nullptr;
+        this->fin = nullptr;
+        this->largo = 0;
+    }
+
+    ~Cola() {
+        while (!estaVacia()) {
+            Nodo<T>* aux = this->frente;
+            this->frente = this->frente->getSiguiente();
+            delete aux;
+        }
+    }
+
+    bool estaVacia() {
+        return this->frente == nullptr;
+    }
+
+    void encolar(T dato) {
+        Nodo<T>* nuevo = new Nodo<T>(dato);
+        if (estaVacia()) {
+            this->frente = nuevo;
+            this->fin = nuevo;
+        } else {
+            this->fin->setSiguiente(nuevo);
+            this->fin = nuevo;
+        }
+        this->largo++;
+    }
+
+    T desencolar() {
+        if (estaVacia()) {
+            return nullptr;
+        }
+        Nodo<T>* nodoAEliminar = this->frente;
+        T dato = nodoAEliminar->getDato();
+        
+        this->frente = this->frente->getSiguiente();
+        if (this->frente == nullptr) {
+            this->fin = nullptr;
+        }
+        
+        delete nodoAEliminar;
+        this->largo--;
+        return dato;
+    }
+
+    int getSize() {
+        return this->largo;
+    }
+
+    T getFrente() {
+        if (estaVacia()) return nullptr;
+        return this->frente->getDato();
+    }
+};
+
 #endif

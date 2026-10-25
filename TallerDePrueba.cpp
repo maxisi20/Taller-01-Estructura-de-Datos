@@ -51,24 +51,23 @@ void ingresasDepartamentos(Lista<Departamento*>& hospital){
     hospital.añadir(new Cirugia());
     hospital.añadir(new Pediatria());
     hospital.añadir(new Hospitalizacion());
-    
 }
+
 void verEstado(string op, Lista<Departamento*>& hospital){
     try{
         int opcion = stoi(op) - 1;
-        Departamento* servicio= hospital.getIndice(opcion);
-        if(servicio==nullptr){
-            cout<<"No se ha encontrado el servicio"<<endl;
+        Departamento* servicio = hospital.getIndice(opcion);
+        if(servicio == nullptr){
+            cout << "No se ha encontrado el servicio" << endl;
             return;
         }
         servicio->mostrarEstado();
-        
-        
     }catch(const invalid_argument& e){
-        cout<<"Error!! devolviendo al menú..."<<endl;
+        cout << "Error!! devolviendo al menú..." << endl;
     }
 }
-void parsearLinea(const string& linea, int& id, string& nombre, int& edad, string& depa) {
+
+void parsearLinea(const string& linea, int& id, string& nombre, int& edad, double& temperatura, int& presionArterial, int& dolor, string& tipoDolor, int& trauma, int& sintomasNeurologicos, int& requiereCirugia, int& diasHospitalizacion) {
     const char* ptr = linea.c_str();
     string acumulador = "";
     int campo = 0;
@@ -78,21 +77,28 @@ void parsearLinea(const string& linea, int& id, string& nombre, int& edad, strin
             if (campo == 0) id = stoi(acumulador);
             else if (campo == 1) nombre = acumulador;
             else if (campo == 2) edad = stoi(acumulador);
+            else if (campo == 3) temperatura = stod(acumulador);
+            else if (campo == 4) presionArterial = stoi(acumulador);
+            else if (campo == 5) dolor = stoi(acumulador);
+            else if (campo == 6) tipoDolor = acumulador;
+            else if (campo == 7) trauma = stoi(acumulador);
+            else if (campo == 8) sintomasNeurologicos = stoi(acumulador);
+            else if (campo == 9) requiereCirugia = stoi(acumulador);
             
             acumulador = ""; 
             campo++;
         } else if (*ptr != '\r' && *ptr != '\n') {
             acumulador += *ptr;
         }
-        
         ptr++; 
     }
 
-    if (campo == 3) {
-        depa = acumulador;
+    if (campo == 10) {
+        diasHospitalizacion = stoi(acumulador);
     }
 }
-void leerArch(Lista<Paciente*>& pacientesDispo) {
+
+void leerArch(Cola<Paciente*>& colaPacientes) {
     try {
         ifstream archivo("archivo.txt");
         string linea;
@@ -100,12 +106,13 @@ void leerArch(Lista<Paciente*>& pacientesDispo) {
         while (getline(archivo, linea)) {
             if (linea.empty()) continue;
 
-            int id = 0, edad = 0;
-            string nombre = "", departamento = "";
+            int id = 0, edad = 0, presionArterial = 0, dolor = 0, trauma = 0, sintomasNeurologicos = 0, requiereCirugia = 0, diasHospitalizacion = 0;
+            double temperatura = 0.0;
+            string nombre = "", tipoDolor = "";
     
-            parsearLinea(linea, id, nombre, edad, departamento);
+            parsearLinea(linea, id, nombre, edad, temperatura, presionArterial, dolor, tipoDolor, trauma, sintomasNeurologicos, requiereCirugia, diasHospitalizacion);
             
-            pacientesDispo.añadir(new Paciente(nombre, edad, id, departamento));
+            colaPacientes.encolar(new Paciente(id, nombre, edad, temperatura, presionArterial, dolor, tipoDolor, trauma, sintomasNeurologicos, requiereCirugia, diasHospitalizacion));
         }
         archivo.close();
         
@@ -116,11 +123,11 @@ void leerArch(Lista<Paciente*>& pacientesDispo) {
 
 int abrirMenu() {
     Lista<Departamento*> hospital;
-    Lista<Paciente*> pacientesDispo;
+    Cola<Paciente*> colaPacientes; 
     ingresasDepartamentos(hospital);
     Pila<string> historial;
   
-    leerArch(pacientesDispo);
+    leerArch(colaPacientes);
     int opcion;
     do {
         cout << R"(=== Hospital marmaja ===
@@ -134,17 +141,10 @@ int abrirMenu() {
     
         switch (opcion) {
             case 1:{
-                cout<<"==Pacientes en espera=="<<endl;
-                if (pacientesDispo.getSize() == 0) {
+                cout << "==Pacientes en espera (Cola)==" << endl;
+                if (colaPacientes.estaVacia()) {
                     cout << "No hay pacientes en espera." << endl << endl;
                     break;
-                }
-                for (int i = 0; i < pacientesDispo.getSize(); i++) {
-                    Paciente* p = pacientesDispo.getIndice(i);
-                    cout << (i + 1) << ". ";
-                    if (p->getId() < 10) cout << "00";
-                    else if (p->getId() < 100) cout << "0";
-                    cout << p->getId() << "- " << p->getNombre() << endl;
                 }
                 
                 cout << "Indique la cantidad de pacientes a atender (ingrese -1 para volver al menú): ";
@@ -153,8 +153,8 @@ int abrirMenu() {
                 int cantidad;
                 try {
                     cantidad = stoi(cantStr);
-                    if(cantidad==-1){
-                        cout<<"Volviendo al menú"<< endl;
+                    if(cantidad == -1){
+                        cout << "Volviendo al menú" << endl;
                         break;
                     }
                 } catch (...) {
@@ -162,26 +162,28 @@ int abrirMenu() {
                     break;
                 }
                 
-                if (cantidad > pacientesDispo.getSize()) {
-                    cantidad = pacientesDispo.getSize();
-                    cout<<"Se atenderán a todos los pacientes"<<endl<<endl;
-                }
                 cout << "=== ATENDIENDO PACIENTES ===" << endl;
-                for (int i = 0; i < cantidad; i++) {
-                    Paciente* p = pacientesDispo.extraerPrimero();
+                int atendidos = 0;
+                while (atendidos < cantidad && !colaPacientes.estaVacia()) {
+                    Paciente* p = colaPacientes.desencolar(); 
                     if (p != nullptr) {
-                        cout << "ID: "<< p->getId() << endl;
+                        cout << "ID: " << p->getId() << endl;
                         cout << "Nombre: " << p->getNombre() << endl;
                         cout << "Edad: " << p->getEdad() << endl;
-                        cout << "Servicio: " << p->getDepartamento() << endl;
+                        
+                        string servicioDestino = "Urgencias"; 
+                        p->setDepartamento(servicioDestino);
+                        
+                        cout << "Servicio asignado: " << p->getDepartamento() << endl;
+                        
                         bool derivado = false;
                         for (int j = 0; j < hospital.getSize(); j++) {
                             Departamento* dep = hospital.getIndice(j);
                             if (p->getDepartamento().find(dep->getNombre()) != string::npos) {
-                                dep->agregarPaciente(p);
+                                dep->agregarPaciente(p); // Próximamente se insertará en el AVL del departamento
                                 string registro = "Nombre: " + p->getNombre() + "- Edad: " + to_string(p->getEdad()) + "- Departamento: " + dep->getNombre();
                                 historial.añadir(registro);
-                                cout << "Paciente enviado a " << p->getDepartamento() << endl<<endl;
+                                cout << "Paciente enviado a " << dep->getNombre() << endl << endl;
                                 derivado = true;
                                 break;
                             }
@@ -190,20 +192,22 @@ int abrirMenu() {
                             cout << "Departamento no encontrado. Paciente descartado." << endl << endl;
                             delete p;
                         }
+                        atendidos++;
                     }
                 }
-                break;}
+                break;
+            }
             case 2: {
-                cout<<"-- depas/sevicios--"<<endl;
+                cout << "-- depas/servicios --" << endl;
                 string op;
                 for(int i = 0; i < hospital.getSize(); i++){
                     cout << (i+1) << ". " << hospital.getIndice(i)->getNombre() << endl;
                 }
-                cout<<"Seleccionar opcion: ";
-                cin>> op;
-                cout<<op<<endl;
-                verEstado(op,hospital);
-                break;}
+                cout << "Seleccionar opcion: ";
+                cin >> op;
+                verEstado(op, hospital);
+                break;
+            }
             case 3: 
                 cout << "=== HISTORIAL DE ULTIMAS ATENCIONES DEL HOSPITAL ===" << endl;
                 historial.mostrar();
@@ -215,13 +219,11 @@ int abrirMenu() {
                 cout << "Error!! intente nuevamente" << endl;
         }
     } while (opcion != 4);
-    cout<<"Chao"<<endl;
+    cout << "Chao" << endl;
     return 0;
 }
 
-
 int main() {
-   
     abrirMenu();
     return 0;
 }
