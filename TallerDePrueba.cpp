@@ -43,14 +43,14 @@ public:
 };
 
 void ingresasDepartamentos(Lista<Departamento*>& hospital){
-    hospital.añadir(new Urgencias());
-    hospital.añadir(new MedicinaGen());
-    hospital.añadir(new Cardiologia());
-    hospital.añadir(new Neurología());
-    hospital.añadir(new Traumatologia());
-    hospital.añadir(new Cirugia());
-    hospital.añadir(new Pediatria());
-    hospital.añadir(new Hospitalizacion());
+    hospital.anadir(new Urgencias());
+    hospital.anadir(new MedicinaGen());
+    hospital.anadir(new Cardiologia());
+    hospital.anadir(new Neurología());
+    hospital.anadir(new Traumatologia());
+    hospital.anadir(new Cirugia());
+    hospital.anadir(new Pediatria());
+    hospital.anadir(new Hospitalizacion());
 }
 
 void verEstado(string op, Lista<Departamento*>& hospital){
@@ -106,7 +106,13 @@ void leerArch(Cola<Paciente*>& colaPacientes) {
         while (getline(archivo, linea)) {
             if (linea.empty()) continue;
 
-            int id = 0, edad = 0, presionArterial = 0, dolor = 0, trauma = 0, sintomasNeurologicos = 0, requiereCirugia = 0, diasHospitalizacion = 0;
+            int id = 0, edad = 0,
+            presionArterial = 0, 
+            dolor = 0, 
+            trauma = 0, 
+            sintomasNeurologicos = 0, 
+            requiereCirugia = 0, 
+            diasHospitalizacion = 0;
             double temperatura = 0.0;
             string nombre = "", tipoDolor = "";
     
@@ -130,14 +136,14 @@ int abrirMenu() {
     leerArch(colaPacientes);
     int opcion;
     do {
-        cout << R"(=== Hospital marmaja ===
-        1. Atender pacientes
-        2. Ver departamento
-        3. Revisar historial de atencion
-        4. Salir )" << endl;
-        cout << "Opcion >";
+        cout << R"(=== HOSPITAL MARMAJA ===
+1. Atender pacientes
+2. Ver departamentos
+3. Buscar paciente
+4. Salir)" << endl;
+        cout << "Seleccionar opcion: ";
         cin >> opcion;
-        cout << "\n" << endl;
+        cout << "\n";
     
         switch (opcion) {
             case 1:{
@@ -162,28 +168,50 @@ int abrirMenu() {
                     break;
                 }
                 
+                ArbolDecision arbolDecision;
+
                 cout << "=== ATENDIENDO PACIENTES ===" << endl;
                 int atendidos = 0;
                 while (atendidos < cantidad && !colaPacientes.estaVacia()) {
                     Paciente* p = colaPacientes.desencolar(); 
                     if (p != nullptr) {
-                        cout << "ID: " << p->getId() << endl;
+                        cout << "ID: ";
+                        if (p->getId() < 10) cout << "00";
+                        else if (p->getId() < 100) cout << "0";
+                        cout << p->getId() << endl;
+
                         cout << "Nombre: " << p->getNombre() << endl;
                         cout << "Edad: " << p->getEdad() << endl;
+                        cout << "Temperatura: " << p->getTemperatura() << endl;
+                        cout << "Dolor: " << p->getDolor() << endl;
+                        cout << "TipoDolor: " << p->getTipoDolor() << endl;
+                        cout << "Trauma: " << p->getTrauma() << endl;
+                        cout << "SintomasNeurologicos: " << p->getSintomasNeurologicos() << endl;
+                        cout << "RequiereCirugia: " << p->getRequiereCirugia() << endl;
+                        cout << "DiasHospitalizacion: " << p->getDiasHospitalizacion() << endl;
                         
-                        string servicioDestino = "Urgencias"; 
+                        string rutaDecision = "";
+                        string servicioDestino = arbolDecision.clasificar(p, rutaDecision);
+                        
+                        if (servicioDestino.empty()) {
+                            cout << "Paciente rechazado por validacion: " << rutaDecision << endl << endl;
+                            delete p;
+                            atendidos++;
+                            continue;
+                        }
+                        
                         p->setDepartamento(servicioDestino);
-                        
+                        cout << "Ruta: " << rutaDecision << endl;
                         cout << "Servicio asignado: " << p->getDepartamento() << endl;
                         
                         bool derivado = false;
                         for (int j = 0; j < hospital.getSize(); j++) {
                             Departamento* dep = hospital.getIndice(j);
                             if (p->getDepartamento().find(dep->getNombre()) != string::npos) {
-                                dep->agregarPaciente(p); // Próximamente se insertará en el AVL del departamento
+                                dep->agregarPaciente(p); 
                                 string registro = "Nombre: " + p->getNombre() + "- Edad: " + to_string(p->getEdad()) + "- Departamento: " + dep->getNombre();
                                 historial.añadir(registro);
-                                cout << "Paciente enviado a " << dep->getNombre() << endl << endl;
+                                cout << "Paciente insertado en el AVL de " << dep->getNombre() << "." << endl << endl;
                                 derivado = true;
                                 break;
                             }
@@ -198,21 +226,61 @@ int abrirMenu() {
                 break;
             }
             case 2: {
-                cout << "-- depas/servicios --" << endl;
-                string op;
+                cout << "=== ESTADO DE LOS DEPARTAMENTOS ===" << endl;
                 for(int i = 0; i < hospital.getSize(); i++){
-                    cout << (i+1) << ". " << hospital.getIndice(i)->getNombre() << endl;
+                    Departamento* dep = hospital.getIndice(i);
+                    cout << dep->getNombre() << endl;
+                    dep->mostrarEstado();
                 }
-                cout << "Seleccionar opcion: ";
-                cin >> op;
-                verEstado(op, hospital);
-                break;
-            }
-            case 3: 
-                cout << "=== HISTORIAL DE ULTIMAS ATENCIONES DEL HOSPITAL ===" << endl;
-                historial.mostrar();
                 cout << endl;
                 break;
+            }
+            case 3: {
+                cout << "=== BUSCAR PACIENTE ===" << endl;
+                cout << "Indique el ID o Nombre del paciente: ";
+                string busqueda;
+                cin >> busqueda;
+                cout << "Buscando en AVL..." << endl;
+
+                Paciente* encontrado = nullptr;
+                string depEncontrado = "";
+
+                for (int i = 0; i < hospital.getSize(); i++) {
+                    Departamento* dep = hospital.getIndice(i);
+                    try {
+                        int idBuscado = stoi(busqueda);
+                        encontrado = dep->buscarPacientePorId(idBuscado);
+                    } catch (...) {
+                        encontrado = dep->buscarPacientePorNombre(busqueda);
+                    }
+                    if (encontrado != nullptr) {
+                        depEncontrado = dep->getNombre();
+                        break;
+                    }
+                }
+
+                if (encontrado != nullptr) {
+                    cout << "Paciente encontrado:" << endl;
+                    cout << "-------" << endl;
+                    cout << "ID: ";
+                    if (encontrado->getId() < 10) cout << "00";
+                    else if (encontrado->getId() < 100) cout << "0";
+                    cout << encontrado->getId() << endl;
+                    cout << "Nombre: " << encontrado->getNombre() << endl;
+                    cout << "Edad: " << encontrado->getEdad() << endl;
+                    cout << "Departamento: " << depEncontrado << endl;
+                    cout << "T: " << encontrado->getTemperatura() << "° | D: " << encontrado->getDolor() 
+                         << " | TD: " << encontrado->getTipoDolor() 
+                         << " | T: " << (encontrado->getTrauma() == 1 ? "Si" : "No") 
+                         << " | SN: " << (encontrado->getSintomasNeurologicos() == 1 ? "Si" : "No") 
+                         << " | RC: " << (encontrado->getRequiereCirugia() == 1 ? "Si" : "No") 
+                         << " | DH: " << (encontrado->getDiasHospitalizacion() > 0 ? to_string(encontrado->getDiasHospitalizacion()) : "Ninguno") << endl;
+                    cout << "-------" << endl << endl;
+                } else {
+                    cout << "Paciente no encontrado." << endl << endl;
+                }
+                break;
+            }
             case 4: 
                 break;
             default:

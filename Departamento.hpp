@@ -1,3 +1,4 @@
+
 #ifndef DEPARTAMENTO_HPP
 #define DEPARTAMENTO_HPP
 
@@ -21,6 +22,9 @@ public:
     void agregarPaciente(Paciente* paciente);
     string getNombre();
     string toString();
+    
+    Paciente* buscarPacientePorId(int id);
+    Paciente* buscarPacientePorNombre(string nombre);
 
     virtual void mostrarEstado() = 0;
 };
