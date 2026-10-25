@@ -23,7 +23,7 @@ public:
             actual = siguiente;
         }
     }
-    void añadir(T dato) {
+    void anadir(T dato) {
         Nodo<T>* nuevo = new Nodo<T>(dato);
         nuevo->setSiguiente(this->tope);
         this->tope = nuevo;
