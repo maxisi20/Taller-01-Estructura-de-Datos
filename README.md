@@ -63,7 +63,10 @@ Los umbrales usan `>=`, de modo que el valor exacto del umbral sí cumple la con
 | **7** | `TipoDolor == pecho` | **Cardiología** | Pasa al nivel 8 | El dolor de pecho es una señal cardíaca. |
 | **8** | `PresionArterial >= 180` | **Cardiología** | Pasa al nivel 9 | Presión sistólica de 180 mmHg o más es crisis hipertensiva. |
 | **9** | `DiasHospitalizacion >= 2` | **Hospitalización** | **Medicina General** | Una estadía de 2 días o más requiere internación; si no, atención general. |
-**Empates y prioridades**
+
+
+
+*Empates y prioridades*
 * Si un paciente cumple varias condiciones, gana la primera que se cumple de arriba hacia abajo. El orden de la tabla es la prioridad.
 * Ejemplo: un paciente con dolor de pecho y dolor 9 va a Urgencias (nivel 2), no a Cardiología (nivel 7), porque la emergencia se estabiliza primero.
 * Ejemplo: un menor de 14 años con fiebre alta va a Pediatría (nivel 1).
