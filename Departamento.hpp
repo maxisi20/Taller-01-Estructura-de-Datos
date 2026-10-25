@@ -11,7 +11,7 @@ using namespace std;
 class Departamento {
 
 protected:
-    Lista<Paciente*>* suLista;
+    ArbolAVL<Paciente*>* arbolPacientes;
     string nombre;
 
 public:
