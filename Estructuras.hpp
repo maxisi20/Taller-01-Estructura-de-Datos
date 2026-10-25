@@ -116,6 +116,7 @@ public:
         while (!estaVacia()) {
             Nodo<T>* aux = this->frente;
             this->frente = this->frente->getSiguiente();
+            delete aux->getDato();
             delete aux;
         }
     }
